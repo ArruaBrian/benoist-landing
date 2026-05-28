@@ -16,9 +16,6 @@ function Sidebar({ onOpenStatus, className = "" }) {
   const { state, navigate } = useStore();
   const route = state.route;
 
-  const chainAgents = AGENTS.filter(a => a.chain).sort((x, y) => x.order - y.order);
-  const helperAgents = AGENTS.filter(a => !a.chain);
-
   const onbActive = route.view === "onboarding";
   const onbDone = state.onboarding.completed;
 
@@ -62,44 +59,13 @@ function Sidebar({ onOpenStatus, className = "" }) {
           <NumBadge value="≡" />
           <span className="nav-label">Perfil del Negocio</span>
         </button>
-      </div>
-
-      <div className="nav-section">Cadena de agentes</div>
-      <div className="nav-list">
-        {chainAgents.map(a => {
-          const ready = isAgentReady(state, a);
-          const done = !!state.deliverables[a.id];
-          const active = route.view === "agent" && route.agentId === a.id;
-          return (
-            <button
-              key={a.id}
-              className={"nav-item " + (active ? "active " : "") + (done ? "done " : "") + (!ready ? "locked" : "")}
-              onClick={() => ready && navigate("agent", a.id)}
-              title={!ready ? "Falta completar: " + missingDeps(state, a).join(", ") : ""}
-            >
-              <NumBadge value={a.order} done={done} />
-              <span className="nav-label">{a.short}</span>
-              {!ready && <span className="nav-meta">🔒</span>}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="nav-section">Soporte</div>
-      <div className="nav-list">
-        {helperAgents.map(a => {
-          const active = route.view === "agent" && route.agentId === a.id;
-          return (
-            <button
-              key={a.id}
-              className={"nav-item " + (active ? "active" : "")}
-              onClick={() => navigate("agent", a.id)}
-            >
-              <NumBadge value="★" />
-              <span className="nav-label">{a.short}</span>
-            </button>
-          );
-        })}
+        <button
+          className={"nav-item " + (route.view === "funnel" ? "active" : "")}
+          onClick={() => navigate("funnel")}
+        >
+          <NumBadge value="▽" />
+          <span className="nav-label">Constructor de Funnel</span>
+        </button>
       </div>
 
       <button className="sidebar-foot conn-pill" onClick={onOpenStatus} title="Estado de conexión">
@@ -219,15 +185,15 @@ function Welcome({ onOpenStatus }) {
           <div className="welcome-orb a" />
           <div className="welcome-orb b" />
         </div>
-        <div className="welcome-eyebrow">Programa Fórmula · Prototipo</div>
-        <h1>Una consultoría de negocios <em>automatizada</em>, paso a paso.</h1>
+        <div className="welcome-eyebrow">Programa Fórmula · Motor Comercial</div>
+        <h1>Tu motor comercial <em>paso a paso</em>.</h1>
         <p>
-          No es un curso, ni un CRM, ni un chatbot suelto. Es un proceso guiado donde una cadena de agentes de IA — conectados entre sí — te ayuda a ordenar tu negocio, definir tu oferta, elegir canales, sanear tus números y construir un sistema comercial que funcione.
+          Construí tu funnel de ventas pegando lo que te dan los GPTs especializados. El sistema te muestra las etapas, carga los KPIs y te da recomendaciones para optimizar.
         </p>
         <ul>
-          <li>Cargás la información de tu negocio en un wizard simple. Si no sabés un dato, lo estimás.</li>
-          <li>Cada agente recibe el contexto del anterior. Nada de recomendaciones genéricas.</li>
-          <li>Al final tenés un <strong>Perfil del Negocio</strong> consolidado con tu oferta, canales, finanzas, estrategia y publicidad.</li>
+          <li>Cargás la información de tu negocio en el onboarding. Si no sabés un dato, lo estimás.</li>
+          <li>Armás tu funnel etapa por etapa pegando lo que te da ChatGPT.</li>
+          <li>Una vez completo, el optimizador analiza tu funnel y te da acciones concretas para mejorar.</li>
         </ul>
 
         {!hasKey ? (
@@ -250,16 +216,15 @@ function Welcome({ onOpenStatus }) {
             )}
             {onbDone && (
               <>
-                <Button variant="primary" onClick={() => navigate("agent", "oferta")}>Continuar con Oferta →</Button>
+                <Button variant="primary" onClick={() => navigate("funnel")}>Construir Funnel →</Button>
                 <Button variant="ghost" onClick={() => navigate("profile")}>Ver Perfil del Negocio</Button>
               </>
             )}
-            <Button variant="ghost" onClick={() => navigate("agent", "formula")}>Hablar con Fórmula</Button>
           </div>
         )}
 
         <div className="welcome-note">
-          ⚙ Prototipo de prueba. El modelo Fórmula responde en vivo a través de la conexión configurada en el entorno. Tu progreso y conversaciones quedan guardados localmente en este navegador.
+          ⚙ Prototipo. Tu progreso queda guardado localmente en este navegador. Los GPTs especializados (mercado, oferta, canales, publicidad) se usan por separado en ChatGPT.
         </div>
       </div>
     </div>
@@ -271,7 +236,6 @@ function App() {
   const [statusOpen, setStatusOpen] = React.useState(false);
   const [toast, setToast] = React.useState(null);
   const [navOpen, setNavOpen] = React.useState(false);
-  const [asideOpen, setAsideOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (!state.settings.apiKey && state.route.view !== "welcome") {
@@ -283,11 +247,9 @@ function App() {
   // Close drawers when route changes
   React.useEffect(() => {
     setNavOpen(false);
-    setAsideOpen(false);
-  }, [state.route.view, state.route.agentId]);
+  }, [state.route.view]);
 
   const route = state.route;
-  const agent = route.view === "agent" ? AGENTS_BY_ID[route.agentId] : null;
 
   let mainContent = null;
   let topTitle = "Fórmula";
@@ -305,10 +267,10 @@ function App() {
     topTitle = "Perfil del Negocio";
     topSub = "Consolidado";
     mainContent = <ProfileView />;
-  } else if (route.view === "agent" && agent) {
-    topTitle = agent.name;
-    topSub = agent.short.toUpperCase();
-    mainContent = <Chat agentId={agent.id} onToast={setToast} />;
+  } else if (route.view === "funnel") {
+    topTitle = "Constructor de Funnel";
+    topSub = "Armá tu embudo de ventas";
+    mainContent = <FunnelConstructor />;
   } else {
     // Unknown route — fall back to welcome
     topTitle = "Inicio";
@@ -316,11 +278,10 @@ function App() {
     mainContent = <Welcome onOpenStatus={() => setStatusOpen(true)} />;
   }
 
-  const showAside = route.view === "agent";
-  const routeKey = route.view + ":" + (route.agentId || "");
+  const routeKey = route.view;
 
   return (
-    <div className={"app " + (showAside ? "" : "no-side")}>
+    <div className="app no-side">
       <Sidebar onOpenStatus={() => setStatusOpen(true)} className={navOpen ? "open" : ""} />
       <main className="main">
         <Topbar
@@ -329,14 +290,6 @@ function App() {
           onToggleNav={() => setNavOpen(o => !o)}
           actions={
             <>
-              {route.view === "agent" && (
-                <Button variant="ghost" size="sm" onClick={() => setAsideOpen(o => !o)} aria-label="Ver entregables">
-                  Entregables
-                </Button>
-              )}
-              {route.view === "agent" && (
-                <Button variant="ghost" size="sm" onClick={() => navigate("profile")}>Ver Perfil</Button>
-              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -347,10 +300,9 @@ function App() {
         />
         <React.Fragment key={routeKey}>{mainContent}</React.Fragment>
       </main>
-      {showAside && <Aside agentId={route.agentId} className={asideOpen ? "open" : ""} />}
 
-      {(navOpen || asideOpen) && (
-        <div className="app-scrim" onClick={() => { setNavOpen(false); setAsideOpen(false); }} />
+      {navOpen && (
+        <div className="app-scrim" onClick={() => { setNavOpen(false); }} />
       )}
 
       <ConnectionInfoModal open={statusOpen} onClose={() => setStatusOpen(false)} />

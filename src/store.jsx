@@ -32,6 +32,17 @@ const DEFAULT_STATE = {
   estimates: {},
   conversations: {},
   deliverables: {},
+  funnel: {
+    stages: {
+      alcance: { acciones: "", kpi: "" },
+      primer_contacto: { acciones: "", kpi: "" },
+      proceso_venta: { acciones: "", kpi: "", modelo_venta: "" },
+      conversion: { acciones: "", kpi: "" },
+      recompra: { acciones: "", kpi: "" },
+    },
+    recommendations: null,
+    optimizing: false,
+  },
   route: { view: "welcome", agentId: null },
 };
 
@@ -48,6 +59,11 @@ function loadState() {
       estimates: parsed.estimates || {},
       conversations: parsed.conversations || {},
       deliverables: parsed.deliverables || {},
+      funnel: {
+        ...structuredClone(DEFAULT_STATE.funnel),
+        ...(parsed.funnel || {}),
+        stages: { ...structuredClone(DEFAULT_STATE.funnel.stages), ...((parsed.funnel || {}).stages || {}) },
+      },
       route: parsed.route || { view: "welcome", agentId: null },
       // settings always come from env, never persisted
       settings: readEnv(),
@@ -136,6 +152,21 @@ function StoreProvider({ children }) {
         delete d[agentId];
         return { ...s, deliverables: d };
       });
+    },
+    setFunnelStage(stageId, data) {
+      setState(s => ({
+        ...s,
+        funnel: {
+          ...s.funnel,
+          stages: { ...s.funnel.stages, [stageId]: { ...(s.funnel.stages[stageId] || {}), ...data } },
+        },
+      }));
+    },
+    setFunnelRecommendations(text) {
+      setState(s => ({ ...s, funnel: { ...s.funnel, recommendations: text, optimizing: false } }));
+    },
+    setFunnelOptimizing(val) {
+      setState(s => ({ ...s, funnel: { ...s.funnel, optimizing: val } }));
     },
     resetAll() {
       const blank = structuredClone(DEFAULT_STATE);

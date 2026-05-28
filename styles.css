@@ -1486,3 +1486,199 @@ input, textarea { font: inherit; color: inherit; }
 }
 ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
 .content { scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+
+/* ===== Funnel Constructor ===== */
+.funnel-constructor {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+.funnel-constructor-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.funnel-constructor-header p {
+  color: var(--fg-3);
+  font-size: 13px;
+  margin: 0 0 28px;
+}
+.funnel-constructor-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.funnel-constructor-stage {
+  background: var(--bg-2);
+  border: 1px solid var(--line-1);
+  border-radius: 12px;
+  padding: 20px;
+  transition: opacity 0.3s, border-color 0.3s;
+  animation: fadeInUp 0.4s both;
+}
+.funnel-constructor-stage.status-locked {
+  opacity: 0.45;
+  pointer-events: none;
+  border-color: var(--line-1);
+}
+.funnel-constructor-stage.status-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim, rgba(163, 230, 53, 0.15));
+}
+.funnel-constructor-stage.status-complete {
+  border-color: var(--accent);
+  opacity: 0.85;
+}
+.funnel-constructor-stage-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.funnel-constructor-stage-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-3, #2a2a2a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+  color: var(--fg-1);
+}
+.status-complete .funnel-constructor-stage-num {
+  background: var(--accent);
+  color: #0a0a0a;
+}
+.status-active .funnel-constructor-stage-num {
+  background: var(--accent);
+  color: #0a0a0a;
+}
+.funnel-constructor-stage-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg-1);
+}
+.funnel-constructor-stage-desc {
+  font-size: 12px;
+  color: var(--fg-3);
+  margin-top: 2px;
+}
+.funnel-constructor-stage-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+.funnel-constructor-stage-fields .field {
+  margin: 0;
+}
+/* Progress bar */
+.funnel-constructor-progress {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.funnel-constructor-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--line-1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.funnel-constructor-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.funnel-constructor-progress-text {
+  font-size: 11px;
+  color: var(--fg-3);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+/* Optimize button */
+.funnel-constructor-optimize {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: fadeInUp 0.4s both;
+}
+.funnel-constructor-optimize-hint {
+  font-size: 12px;
+  color: var(--fg-3);
+  max-width: 300px;
+}
+/* Error */
+.funnel-constructor-error {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* Recommendations */
+.funnel-constructor-recommendations {
+  margin-top: 28px;
+  background: var(--bg-2);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 20px;
+  animation: fadeInUp 0.4s both;
+}
+.funnel-constructor-recommendations-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.funnel-constructor-recommendations-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--accent);
+}
+.funnel-constructor-recommendations-body {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--fg-2);
+}
+.funnel-constructor-recommendations-body strong {
+  color: var(--fg-1);
+}
+.funnel-constructor-recommendations-body ul {
+  padding-left: 18px;
+  margin: 8px 0;
+}
+.funnel-constructor-recommendations-body li {
+  margin-bottom: 4px;
+}
+.funnel-constructor-recommendations-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-1);
+}
+/* Preview */
+.funnel-constructor-preview {
+  margin-top: 28px;
+}
+.funnel-constructor-preview h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 14px;
+  color: var(--fg-2);
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
